@@ -93,5 +93,10 @@ function filtrarClientes() {
         card.style.display = nome.includes(termo) ? "flex" : "none";
     });
 }
+function limparBusca() {
+    document.getElementById('busca-cliente').value = "";
+    filtrarClientes();
+}
+
 
 
