@@ -27,26 +27,63 @@ database.ref('alugueis').on('value', (snapshot) => {
     }
 });
 
-// 4. EVENTO DE CADASTRO
-form.addEventListener('submit', function(event) {
+// 4. EVENTO DE CADASTRO (Revisado com Bloqueio Real)
+form.addEventListener('submit', async function(event) { // Adicionamos 'async' aqui
     event.preventDefault();
 
-    const novoAluguel = {
-        id: Date.now(),
-        cliente: document.getElementById('cliente').value,
-        precoDia: document.getElementById('preco-dia').value,
-        dataInicio: document.getElementById('data-inicio').value,
-        dataFim: document.getElementById('data-fim').value
-    };
+    const inicioDesejado = document.getElementById('data-inicio').value;
+    const fimDesejado = document.getElementById('data-fim').value;
+    const nome = document.getElementById('cliente').value;
+    const preco = document.getElementById('preco-dia').value;
 
-    if (novoAluguel.dataFim < novoAluguel.dataInicio) {
-        alert("Data de devolução inválida!");
+    // 1. Validação básica de ordem das datas
+    if (fimDesejado < inicioDesejado) {
+        alert("A data de devolução não pode ser anterior à data de início!");
         return;
     }
 
-    // Salva no Firebase
-    database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
-    form.reset();
+    try {
+        // 2. BUSCAR DADOS DA NUVEM (Esperando a resposta com 'await')
+        const snapshot = await database.ref('alugueis').once('value');
+        const alugueisExistentes = snapshot.val();
+        let conflitoEncontrado = null;
+
+        if (alugueisExistentes) {
+            // Convertemos o objeto do Firebase em uma lista para comparar
+            const listaAlugueis = Object.values(alugueisExistentes);
+
+            for (let aluguel de listaAlugueis) {
+                // LÓGICA DE CONFLITO:
+                // O conflito acontece se (NovoInicio <= FimExistente) E (NovoFim >= InicioExistente)
+                if (inicioDesejado <= aluguel.dataFim && fimDesejado >= aluguel.dataInicio) {
+                    conflitoEncontrado = aluguel;
+                    break; // Para o loop assim que achar o primeiro conflito
+                }
+            }
+        }
+
+        // 3. DECISÃO FINAL
+        if (conflitoEncontrado) {
+            alert(`⚠️ DATA INDISPONÍVEL!\n\nJá existe uma reserva para: ${conflitoEncontrado.cliente}\nPeríodo: ${formatarData(conflitoEncontrado.dataInicio)} até ${formatarData(conflitoEncontrado.dataFim)}`);
+        } else {
+            // Se chegou aqui, a data está livre!
+            const novoAluguel = {
+                id: Date.now(),
+                cliente: nome,
+                precoDia: preco,
+                dataInicio: inicioDesejado,
+                dataFim: fimDesejado
+            };
+
+            await database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
+            form.reset();
+            alert("✅ Reserva confirmada na nuvem!");
+        }
+
+    } catch (error) {
+        console.error("Erro ao acessar o Firebase:", error);
+        alert("Erro de conexão. Tente novamente.");
+    }
 });
 
 // 5. FUNÇÃO PARA DESENHAR O CARD
@@ -93,3 +130,4 @@ function filtrarClientes() {
         card.style.display = nome.includes(termo) ? "flex" : "none";
     });
 }
+
