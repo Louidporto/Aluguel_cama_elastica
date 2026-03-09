@@ -1,13 +1,13 @@
 {
-  "name": "Shape de Guerreiro",
-  "short_name": "Guerreiro",
+  "name": "Gestão de Aluguéis - Cama Elástica",
+  "short_name": "Aluguel Cama elastica",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#ff3131",
   "icons": [
     {
-      "src": "imagens/guerreiro512.png",
+      "src": "imagens/cama.png",
       "sizes": "192x192",
       "type": "image/png"
     }
