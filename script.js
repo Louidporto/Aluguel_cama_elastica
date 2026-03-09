@@ -27,8 +27,8 @@ database.ref('alugueis').on('value', (snapshot) => {
     }
 });
 
-// 4. EVENTO DE CADASTRO (Revisado com Bloqueio Real)
-form.addEventListener('submit', async function(event) { // Adicionamos 'async' aqui
+// 4. EVENTO DE CADASTRO COM BLOQUEIO DE CONFLITO
+form.addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const inicioDesejado = document.getElementById('data-inicio').value;
@@ -36,37 +36,33 @@ form.addEventListener('submit', async function(event) { // Adicionamos 'async' a
     const nome = document.getElementById('cliente').value;
     const preco = document.getElementById('preco-dia').value;
 
-    // 1. Validação básica de ordem das datas
+    // Validação básica
     if (fimDesejado < inicioDesejado) {
-        alert("A data de devolução não pode ser anterior à data de início!");
+        alert("Erro: A data de devolução é anterior à data de início.");
         return;
     }
 
     try {
-        // 2. BUSCAR DADOS DA NUVEM (Esperando a resposta com 'await')
+        // BUSCA DADOS PARA CHECAR CONFLITO
         const snapshot = await database.ref('alugueis').once('value');
         const alugueisExistentes = snapshot.val();
-        let conflitoEncontrado = null;
+        let conflito = null;
 
         if (alugueisExistentes) {
-            // Convertemos o objeto do Firebase em uma lista para comparar
-            const listaAlugueis = Object.values(alugueisExistentes);
-
-            for (let aluguel de listaAlugueis) {
-                // LÓGICA DE CONFLITO:
-                // O conflito acontece se (NovoInicio <= FimExistente) E (NovoFim >= InicioExistente)
-                if (inicioDesejado <= aluguel.dataFim && fimDesejado >= aluguel.dataInicio) {
-                    conflitoEncontrado = aluguel;
-                    break; // Para o loop assim que achar o primeiro conflito
+            for (let id in alugueisExistentes) {
+                const a = alugueisExistentes[id];
+                // Lógica Matemática de Interseção: (NovoInicio <= FimExistente) && (NovoFim >= InicioExistente)
+                if (inicioDesejado <= a.dataFim && fimDesejado >= a.dataInicio) {
+                    conflito = a;
+                    break; 
                 }
             }
         }
 
-        // 3. DECISÃO FINAL
-        if (conflitoEncontrado) {
-            alert(`⚠️ DATA INDISPONÍVEL!\n\nJá existe uma reserva para: ${conflitoEncontrado.cliente}\nPeríodo: ${formatarData(conflitoEncontrado.dataInicio)} até ${formatarData(conflitoEncontrado.dataFim)}`);
+        if (conflito) {
+            alert(`⚠️ DATA OCUPADA!\n\nCliente: ${conflito.cliente}\nPeríodo: ${formatarData(conflito.dataInicio)} até ${formatarData(conflito.dataFim)}`);
         } else {
-            // Se chegou aqui, a data está livre!
+            // SALVAR NA NUVEM
             const novoAluguel = {
                 id: Date.now(),
                 cliente: nome,
@@ -77,12 +73,12 @@ form.addEventListener('submit', async function(event) { // Adicionamos 'async' a
 
             await database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
             form.reset();
-            alert("✅ Reserva confirmada na nuvem!");
+            alert("✅ Reserva confirmada com sucesso!");
         }
 
     } catch (error) {
-        console.error("Erro ao acessar o Firebase:", error);
-        alert("Erro de conexão. Tente novamente.");
+        console.error("Erro no Firebase:", error);
+        alert("Erro ao conectar com o servidor.");
     }
 });
 
@@ -130,4 +126,5 @@ function filtrarClientes() {
         card.style.display = nome.includes(termo) ? "flex" : "none";
     });
 }
+
 
