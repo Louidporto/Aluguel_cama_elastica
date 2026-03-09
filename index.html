@@ -54,8 +54,8 @@
             <div class="busca-wrapper">
                 <input type="text" id="busca-cliente" placeholder="Buscar por nome do cliente...">
                 <div class="botoes-busca">
-                    <button id="btn-buscar" onclick="filtrarClientes()">Buscar</button>
-                    <button id="btn-limpar" onclick="limparBusca()">Limpar</button>
+                    <input type="text" id="busca-cliente" oninput="filtrarClientes()" placeholder="Buscar cliente...">
+                    <button type="button" onclick="limparBusca()">Limpar</button>
                 </div>
             </div>
         </section>
@@ -72,3 +72,4 @@
 </body>
 
 </html>
+
