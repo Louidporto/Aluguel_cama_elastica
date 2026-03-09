@@ -86,17 +86,29 @@ function formatarData(dataStr) {
 
 // 7. FILTRO DE BUSCA
 function filtrarClientes() {
-    const termo = document.getElementById('busca-cliente').value.toLowerCase();
+    const buscaInput = document.getElementById('busca-cliente');
+    if (!buscaInput) return; // Segurança caso o elemento não exista
+
+    const termo = buscaInput.value.toLowerCase();
     const cards = document.querySelectorAll('.card-aluguel');
+
     cards.forEach(card => {
         const nome = card.querySelector('h4').innerText.toLowerCase();
+        // Se o nome inclui o termo, exibe; se não, esconde
         card.style.display = nome.includes(termo) ? "flex" : "none";
     });
 }
+
 function limparBusca() {
-    document.getElementById('busca-cliente').value = "";
-    filtrarClientes();
+    const buscaInput = document.getElementById('busca-cliente');
+    
+    if (buscaInput) {
+        buscaInput.value = ""; // Limpa o texto
+        filtrarClientes();     // Chama o filtro para mostrar todos os cards novamente
+        buscaInput.focus();    // Coloca o cursor de volta no campo (opcional, mas bom pra UX)
+    }
 }
+
 
 
 
