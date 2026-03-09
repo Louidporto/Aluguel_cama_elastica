@@ -1,37 +1,17 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// 1. Configuração do Firebase (Ajustada com o banco de dados)
 const firebaseConfig = {
-  apiKey: "AIzaSyD-m-zKJEmhi9GJ-52VZ_tMjFUVELQz4VQ",
-  authDomain: "camaelasticaapp.firebaseapp.com",
-  projectId: "camaelasticaapp",
-  storageBucket: "camaelasticaapp.firebasestorage.app",
-  messagingSenderId: "995476566915",
-  appId: "1:995476566915:web:ceb35ea886fedb9a4d7cb6",
-  measurementId: "G-9W7RZMHJ6Z"
+    apiKey: "AIzaSyD-m-zKJEmhi9GJ-52VZ_tMjFUVELQz4VQ",
+    authDomain: "camaelasticaapp.firebaseapp.com",
+    // Esta linha abaixo é essencial para o Realtime Database funcionar!
+    databaseURL: "https://camaelasticaapp-default-rtdb.firebaseio.com", 
+    projectId: "camaelasticaapp",
+    storageBucket: "camaelasticaapp.firebasestorage.app",
+    messagingSenderId: "995476566915",
+    appId: "1:995476566915:web:ceb35ea886fedb9a4d7cb6",
+    measurementId: "G-9W7RZMHJ6Z"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// 1. Cole aqui o código que você copiou do Firebase (firebaseConfig)
-const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_PROJETO.firebaseapp.com",
-    databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
-    projectId: "SEU_PROJETO",
-    storageBucket: "SEU_PROJETO.appspot.com",
-    messagingSenderId: "000000000",
-    appId: "1:000000000:web:000000000"
-};
-
-// 2. Inicializa o Firebase
+// 2. Inicializa o Firebase (Formato compatível com o script do HTML)
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
@@ -39,17 +19,15 @@ const form = document.getElementById('form-aluguel');
 const listaCards = document.getElementById('lista-agendamentos');
 
 // 3. CARREGAR DADOS DA NUVEM EM TEMPO REAL
-// O '.on' faz o site atualizar sozinho no celular quando você cadastra no PC!
 database.ref('alugueis').on('value', (snapshot) => {
     const dados = snapshot.val();
-    listaCards.innerHTML = ""; // Limpa a tela para recarregar
+    listaCards.innerHTML = ""; 
     if (dados) {
-        // Converte o objeto do Firebase em lista e desenha os cards
         Object.values(dados).forEach(aluguel => criarCardNaTela(aluguel));
     }
 });
 
-// 4. EVENTO DE CADASTRO (Agora enviando para a Nuvem)
+// 4. EVENTO DE CADASTRO
 form.addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -61,18 +39,17 @@ form.addEventListener('submit', function(event) {
         dataFim: document.getElementById('data-fim').value
     };
 
-    // Validação de data básica
     if (novoAluguel.dataFim < novoAluguel.dataInicio) {
         alert("Data de devolução inválida!");
         return;
     }
 
-    // Salva no Firebase (a nuvem cuida de avisar todos os aparelhos)
+    // Salva no Firebase
     database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
     form.reset();
 });
 
-// 5. FUNÇÃO PARA DESENHAR O CARD (Mantemos sua estilização incrível)
+// 5. FUNÇÃO PARA DESENHAR O CARD
 function criarCardNaTela(aluguel) {
     const card = document.createElement('div');
     card.classList.add('card-aluguel');
@@ -88,7 +65,7 @@ function criarCardNaTela(aluguel) {
             <h4>${aluguel.cliente}</h4>
             <p><b>Início:</b> ${formatarData(aluguel.dataInicio)}</p>
             <p><b>Fim:</b> ${formatarData(aluguel.dataFim)}</p>
-            <p><b>Total:</b> <span style="color:#27ae60">R$ ${valorTotal.toFixed(2)}</span></p>
+            <p><b>Total:</b> <span style="color:#27ae60; font-weight:bold;">R$ ${valorTotal.toFixed(2)}</span></p>
         </div>
         <button class="btn-cancelar" onclick="removerCard(${aluguel.id})">Liberar Equipamento</button>
     `;
@@ -107,7 +84,7 @@ function formatarData(dataStr) {
     return `${dia}/${mes}/${ano}`;
 }
 
-// 7. FILTRO DE BUSCA (Continua funcionando localmente na tela)
+// 7. FILTRO DE BUSCA
 function filtrarClientes() {
     const termo = document.getElementById('busca-cliente').value.toLowerCase();
     const cards = document.querySelectorAll('.card-aluguel');
