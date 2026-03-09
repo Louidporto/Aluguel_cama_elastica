@@ -27,28 +27,54 @@ database.ref('alugueis').on('value', (snapshot) => {
     }
 });
 
-// 4. EVENTO DE CADASTRO
+// 4. EVENTO DE CADASTRO (Com Verificação de Conflito na Nuvem)
 form.addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const novoAluguel = {
-        id: Date.now(),
-        cliente: document.getElementById('cliente').value,
-        precoDia: document.getElementById('preco-dia').value,
-        dataInicio: document.getElementById('data-inicio').value,
-        dataFim: document.getElementById('data-fim').value
-    };
+    const inicioDesejado = document.getElementById('data-inicio').value;
+    const fimDesejado = document.getElementById('data-fim').value;
+    const nome = document.getElementById('cliente').value;
+    const preco = document.getElementById('preco-dia').value;
 
-    if (novoAluguel.dataFim < novoAluguel.dataInicio) {
-        alert("Data de devolução inválida!");
+    // 1. Validação básica de data
+    if (fimDesejado < inicioDesejado) {
+        alert("A data de devolução não pode ser menor que a data de início!");
         return;
     }
 
-    // Salva no Firebase
-    database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
-    form.reset();
-});
+    // 2. BUSCAR DADOS ATUAIS PARA CHECAR CONFLITO
+    database.ref('alugueis').once('value').then((snapshot) => {
+        const alugueisExistentes = snapshot.val();
+        let conflito = false;
 
+        if (alugueisExistentes) {
+            // Transformamos o objeto em lista e verificamos cada um
+            Object.values(alugueisExistentes).forEach(aluguel => {
+                // Lógica de Interseção de Intervalos
+                if (inicioDesejado <= aluguel.dataFim && fimDesejado >= aluguel.dataInicio) {
+                    conflito = aluguel;
+                }
+            });
+        }
+
+        if (conflito) {
+            alert(`⚠️ CONFLITO DE DATA!\n\nEste período já está reservado para: ${conflito.cliente}\n(De ${formatarData(conflito.dataInicio)} até ${formatarData(conflito.dataFim)})`);
+        } else {
+            // Se não houver conflito, aí sim salvamos
+            const novoAluguel = {
+                id: Date.now(),
+                cliente: nome,
+                precoDia: preco,
+                dataInicio: inicioDesejado,
+                dataFim: fimDesejado
+            };
+
+            database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
+            form.reset();
+            alert("✅ Reserva confirmada com sucesso!");
+        }
+    });
+});
 // 5. FUNÇÃO PARA DESENHAR O CARD
 function criarCardNaTela(aluguel) {
     const card = document.createElement('div');
@@ -93,3 +119,4 @@ function filtrarClientes() {
         card.style.display = nome.includes(termo) ? "flex" : "none";
     });
 }
+
