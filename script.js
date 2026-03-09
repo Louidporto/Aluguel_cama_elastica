@@ -27,59 +27,26 @@ database.ref('alugueis').on('value', (snapshot) => {
     }
 });
 
-// 4. EVENTO DE CADASTRO COM BLOQUEIO DE CONFLITO
-form.addEventListener('submit', async function(event) {
+// 4. EVENTO DE CADASTRO
+form.addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const inicioDesejado = document.getElementById('data-inicio').value;
-    const fimDesejado = document.getElementById('data-fim').value;
-    const nome = document.getElementById('cliente').value;
-    const preco = document.getElementById('preco-dia').value;
+    const novoAluguel = {
+        id: Date.now(),
+        cliente: document.getElementById('cliente').value,
+        precoDia: document.getElementById('preco-dia').value,
+        dataInicio: document.getElementById('data-inicio').value,
+        dataFim: document.getElementById('data-fim').value
+    };
 
-    // Validação básica
-    if (fimDesejado < inicioDesejado) {
-        alert("Erro: A data de devolução é anterior à data de início.");
+    if (novoAluguel.dataFim < novoAluguel.dataInicio) {
+        alert("Data de devolução inválida!");
         return;
     }
 
-    try {
-        // BUSCA DADOS PARA CHECAR CONFLITO
-        const snapshot = await database.ref('alugueis').once('value');
-        const alugueisExistentes = snapshot.val();
-        let conflito = null;
-
-        if (alugueisExistentes) {
-            for (let id in alugueisExistentes) {
-                const a = alugueisExistentes[id];
-                // Lógica Matemática de Interseção: (NovoInicio <= FimExistente) && (NovoFim >= InicioExistente)
-                if (inicioDesejado <= a.dataFim && fimDesejado >= a.dataInicio) {
-                    conflito = a;
-                    break; 
-                }
-            }
-        }
-
-        if (conflito) {
-            alert(`⚠️ DATA OCUPADA!\n\nCliente: ${conflito.cliente}\nPeríodo: ${formatarData(conflito.dataInicio)} até ${formatarData(conflito.dataFim)}`);
-        } else {
-            // SALVAR NA NUVEM
-            const novoAluguel = {
-                id: Date.now(),
-                cliente: nome,
-                precoDia: preco,
-                dataInicio: inicioDesejado,
-                dataFim: fimDesejado
-            };
-
-            await database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
-            form.reset();
-            alert("✅ Reserva confirmada com sucesso!");
-        }
-
-    } catch (error) {
-        console.error("Erro no Firebase:", error);
-        alert("Erro ao conectar com o servidor.");
-    }
+    // Salva no Firebase
+    database.ref('alugueis/' + novoAluguel.id).set(novoAluguel);
+    form.reset();
 });
 
 // 5. FUNÇÃO PARA DESENHAR O CARD
