@@ -29,23 +29,23 @@ database.ref('alugueis').on('value', (snapshot) => {
     }
 });
 
-// 4. EVENTO DE CADASTRO COM BLOQUEIO DE CONFLITO
+// 4. EVENTO DE CADASTRO CORRIGIDO
 form.addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const inicioDesejado = document.getElementById('data-inicio').value;
     const fimDesejado = document.getElementById('data-fim').value;
     const nome = document.getElementById('cliente').value;
+    const desc = document.getElementById('descriçao').value; // Pegando o ID do seu HTML
+    const tel = document.getElementById('telefone').value; 
     const preco = document.getElementById('preco-dia').value;
 
-    // Validação básica
     if (fimDesejado < inicioDesejado) {
         alert("Erro: A data de devolução é anterior à data de início.");
         return;
     }
 
     try {
-        // BUSCA DADOS PARA CHECAR CONFLITO
         const snapshot = await database.ref('alugueis').once('value');
         const alugueisExistentes = snapshot.val();
         let conflito = null;
@@ -53,7 +53,6 @@ form.addEventListener('submit', async function(event) {
         if (alugueisExistentes) {
             for (let id in alugueisExistentes) {
                 const a = alugueisExistentes[id];
-                // Lógica Matemática de Interseção: (NovoInicio <= FimExistente) && (NovoFim >= InicioExistente)
                 if (inicioDesejado <= a.dataFim && fimDesejado >= a.dataInicio) {
                     conflito = a;
                     break; 
@@ -62,12 +61,13 @@ form.addEventListener('submit', async function(event) {
         }
 
         if (conflito) {
-            alert(`⚠️ DATA OCUPADA!\n\nCliente: ${conflito.cliente}\nPeríodo: ${formatarData(conflito.dataInicio)} até ${formatarData(conflito.dataFim)}`);
+            alert(`⚠️ DATA OCUPADA!\n\nCliente: ${conflito.cliente}`);
         } else {
-            // SALVAR NA NUVEM
             const novoAluguel = {
                 id: Date.now(),
                 cliente: nome,
+                descricao: desc, // Removi o 'ç' aqui para segurança
+                telefone: tel,
                 precoDia: preco,
                 dataInicio: inicioDesejado,
                 dataFim: fimDesejado
@@ -77,26 +77,35 @@ form.addEventListener('submit', async function(event) {
             form.reset();
             alert("✅ Reserva confirmada com sucesso!");
         }
-
     } catch (error) {
-        console.error("Erro no Firebase:", error);
-        alert("Erro ao conectar com o servidor.");
+        console.error("Erro:", error);
     }
 });
-// 5. FUNÇÃO PARA DESENHAR O CARD
+
+// 5. FUNÇÃO DESENHAR CARD CORRIGIDA
 function criarCardNaTela(aluguel) {
     const card = document.createElement('div');
     card.classList.add('card-aluguel');
 
+    // Cálculo de valores
     const d1 = new Date(aluguel.dataInicio + "T00:00:00");
     const d2 = new Date(aluguel.dataFim + "T00:00:00");
     const dias = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-    const valorTotal = dias * aluguel.precoDia;
+    const valorTotal = dias * (aluguel.precoDia || 0);
+
+    // Limpeza do número do zap (remove tudo que não for número)
+    const telLimpo = aluguel.telefone ? aluguel.telefone.replace(/\D/g, '') : '';
 
     card.innerHTML = `
         <div class="status-barra ocupado"></div>
         <div class="card-info">
             <h4>${aluguel.cliente}</h4>
+            <p style="color: #666; font-size: 13px; margin-bottom: 8px;">${aluguel.descricao || ''}</p>
+            
+            <a href="https://wa.me/55${telLimpo}" target="_blank" class="btn-whatsapp">
+                📱 Chamar no Zap
+            </a>
+
             <p><b>Início:</b> ${formatarData(aluguel.dataInicio)}</p>
             <p><b>Fim:</b> ${formatarData(aluguel.dataFim)}</p>
             <p><b>Total:</b> <span style="color:#27ae60; font-weight:bold;">R$ ${valorTotal.toFixed(2)}</span></p>
@@ -106,16 +115,27 @@ function criarCardNaTela(aluguel) {
     listaCards.appendChild(card);
 }
 
-// 6. REMOVER DA NUVEM
-function removerCard(id) {
-    if(confirm("Deseja realmente apagar essa reserva?")) {
-        database.ref('alugueis/' + id).remove();
-    }
-}
+async function removerCard(id) {
+    if(confirm("Deseja finalizar este aluguel e enviar para o histórico?")) {
+        try {
+            // 1. Pega os dados do aluguel atual
+            const snapshot = await database.ref('alugueis/' + id).once('value');
+            const dadosAluguel = snapshot.val();
 
-function formatarData(dataStr) {
-    const [ano, mes, dia] = dataStr.split('-');
-    return `${dia}/${mes}/${ano}`;
+            // 2. Salva na pasta 'historico' com a data de finalização
+            await database.ref('historico/' + id).set({
+                ...dadosAluguel,
+                finalizadoEm: new Date().toISOString()
+            });
+
+            // 3. Remove da lista ativa
+            await database.ref('alugueis/' + id).remove();
+            
+            alert("Aluguel finalizado e salvo no histórico!");
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 
 // 7. FILTRO DE BUSCA
@@ -142,6 +162,42 @@ function limparBusca() {
         buscaInput.focus();    // Coloca o cursor de volta no campo (opcional, mas bom pra UX)
     }
 }
+
+// ESCUTAR HISTÓRICO (Versão com valor total)
+database.ref('historico').on('value', (snapshot) => {
+    const listaH = document.getElementById('lista-historico');
+    const dados = snapshot.val();
+    listaH.innerHTML = "";
+    if (dados) {
+        Object.values(dados).reverse().forEach(h => { // .reverse() para mostrar os mais recentes primeiro
+            const item = document.createElement('div');
+            item.className = 'card-aluguel historico-item';
+            
+            // Cálculo do total para o histórico também
+            const d1 = new Date(h.dataInicio + "T00:00:00");
+            const d2 = new Date(h.dataFim + "T00:00:00");
+            const dias = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+            const total = dias * h.precoDia;
+
+            item.innerHTML = `
+                <div class="card-info">
+                    <span class="tag-finalizado">Finalizado</span>
+                    <h4>${h.cliente}</h4>
+                    <p><b>Período:</b> ${formatarData(h.dataInicio)} - ${formatarData(h.dataFim)}</p>
+                    <p><b>Recebido:</b> R$ ${total.toFixed(2)}</p>
+                    <p style="font-size: 10px; margin-top: 5px;">Arquivado em: ${formatarData(h.finalizadoEm.split('T')[0])}</p>
+                </div>
+            `;
+            listaH.appendChild(item);
+        });
+    }
+});
+
+
+
+
+
+
 
 
 
