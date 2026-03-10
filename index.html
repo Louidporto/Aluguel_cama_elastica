@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Aluguéis - Cama Elástica</title>
+    
+    <meta name="theme-color" content="#e67e22">
+    
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="imagens/cama.png">    
-    <link rel="icon" sizes="192x192" href="imagens/cama.png">
-    <meta name="theme-color" content="#ff3131">
-    <link rel="manifest" href="manifes.json">
+    <link rel="icon" type="image/png" href="imagens/cama.png"> 
 </head>
 <body>
 
@@ -17,7 +17,7 @@
         <section id="registro-aluguel">
             <div class="header-section">
                 <h1>🚀 Novo Agendamento</h1>
-                <p>Preencha os dados abaixo para reservar a cama elástica.</p>
+                <p>Preencha os dados abaixo para reservar o equipamento.</p>
             </div>
 
             <form id="form-aluguel">
@@ -28,13 +28,13 @@
                     </div>
                     
                     <div class="campo-form">
-                        <label for="descriçao">Observações</label>
-                        <input type="text" id="descriçao" placeholder="Ex: Pula Pula" required>
+                        <label for="descricao">Descrição/Equipamento:</label>
+                        <input type="text" id="descricao" placeholder="Ex: Cama Elástica 3m" required>
                     </div>
 
                     <div class="campo-form">
-                        <label for="telefone">Contato do cliente:</label>
-                        <input type="tel" id="telefone" placeholder="WhatsApp (Ex: (31) 9 9999-9999)" required>
+                        <label for="telefone">WhatsApp:</label>
+                        <input type="tel" id="telefone" placeholder="Ex: 31999999999" required>
                     </div>
 
                     <div class="campo-form">
@@ -62,37 +62,31 @@
         <section class="container-busca">
             <h3>🔍 Gerenciar Reservas</h3>
             <div class="busca-wrapper">
-                <input type="text" id="busca-cliente" placeholder="Buscar por nome do cliente...">
+                <input type="text" id="busca-cliente" placeholder="Buscar por nome do cliente..." oninput="filtrarClientes()">
                 <div class="botoes-busca">
-                    <button id="btn-buscar" onclick="filtrarClientes()"> 🔍 Buscar</button>
                     <button id="btn-limpar" onclick="limparBusca()">Limpar</button>
                 </div>
             </div>
         </section>
 
+        <h3>⚡ Reservas Ativas</h3>
         <div class="lista-cards" id="lista-agendamentos">
-        </div>
-
-        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ddd;">
+            </div>
         
-        <section id="secao-historico">
-            <h3 style="color: #7f8c8d; margin-bottom: 20px;">📜 Histórico de Aluguéis Finalizados</h3>
-            <div id="lista-historico" class="lista-cards">
-                </div>
-        </section>
+        <hr class="divisor">
         
-           
+        <h3>📜 Histórico de Aluguéis Finalizados</h3>
+        <div id="lista-historico" class="lista-cards">
+            </div>
         
     </div>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="script.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
 
 </body>
-
 </html>
-
-
 
 
 
