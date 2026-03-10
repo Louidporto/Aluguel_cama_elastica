@@ -7,9 +7,9 @@
   "theme_color": "#f39c12",
   "icons": [
     {
-      "src": "imagens/cama.png",
+      "src": "imagens/cama.jpeg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
