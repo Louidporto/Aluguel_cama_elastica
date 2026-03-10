@@ -9,7 +9,7 @@
     {
       "src": "imagens/cama.png",
       "sizes": "192x192",
-      "type": "imagens/cama.png"
+      "type": "image/png"
     }
   ]
 }
