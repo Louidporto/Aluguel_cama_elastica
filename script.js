@@ -101,7 +101,7 @@ function criarCardNaTela(aluguel) {
             <p><b>Fim:</b> ${formatarData(aluguel.dataFim)}</p>
             <p><b>Total:</b> <span style="color:#27ae60; font-weight:bold;">R$ ${valorTotal.toFixed(2)}</span></p>
         </div>
-        <button class="btn-cancelar" onclick="removerCard(${aluguel.id})">Liberar Equipamento</button>
+        <button class="btn-cancelar" onclick="removerCard(${aluguel.id})">Apagar reserva</button>
     `;
     listaCards.appendChild(card);
 }
@@ -142,6 +142,7 @@ function limparBusca() {
         buscaInput.focus();    // Coloca o cursor de volta no campo (opcional, mas bom pra UX)
     }
 }
+
 
 
 
