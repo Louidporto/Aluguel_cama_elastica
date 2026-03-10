@@ -50,4 +50,26 @@ button#btn-reservar:hover { background: #d35400; }
 .historico-item { background: #f8f9fa !important; border-left: 5px solid #95a5a6 !important; opacity: 0.8; }
 .tag-finalizado { background: #95a5a6; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
 
+#btn-buscar {
+    background-color: #e67e22; /* Laranja */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+#btn-buscar:hover {
+    background-color: #d35400; /* Laranja mais escuro */
+}
+
+.busca-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
 
