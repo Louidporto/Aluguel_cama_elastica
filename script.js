@@ -23,16 +23,23 @@ function formatarData(data) {
     return `${dia}/${mes}/${ano}`;
 }
 
-// 2. ESCUTAR RESERVAS ATIVAS
+// 2. ESCUTAR RESERVAS ATIVAS (Garante que apareça ao carregar)
 database.ref('alugueis').on('value', (snapshot) => {
     const dados = snapshot.val();
+    const listaCards = document.getElementById('lista-agendamentos');
     listaCards.innerHTML = ""; 
+    
     if (dados) {
-        Object.values(dados).sort((a, b) => a.dataInicio.localeCompare(b.dataInicio))
-              .forEach(aluguel => criarCardNaTela(aluguel));
+        // Converte o objeto em array e ordena por data
+        const listaOrdenada = Object.values(dados).sort((a, b) => a.dataInicio.localeCompare(b.dataInicio));
+        
+        listaOrdenada.forEach(aluguel => {
+            criarCardNaTela(aluguel);
+        });
+    } else {
+        listaCards.innerHTML = "<p style='text-align:center; color:#999;'>Nenhuma reserva ativa encontrada.</p>";
     }
 });
-
 // 3. ESCUTAR HISTÓRICO
 database.ref('historico').on('value', (snapshot) => {
     const dados = snapshot.val();
@@ -132,20 +139,30 @@ function criarCardHistorico(h) {
     listaHistorico.appendChild(card);
 }
 
-// 8. BUSCA
+// 8. FUNÇÃO DE BUSCA ATUALIZADA
 function filtrarClientes() {
-    const termo = document.getElementById('busca-cliente').value.toLowerCase();
+    const buscaInput = document.getElementById('busca-cliente');
+    const termo = buscaInput.value.toLowerCase();
+    
+    // Seleciona todos os cards dentro da lista de agendamentos
     const cards = document.querySelectorAll('#lista-agendamentos .card-aluguel');
+    
     cards.forEach(card => {
-        const nome = card.querySelector('h4').innerText.toLowerCase();
-        card.style.display = nome.includes(termo) ? "flex" : "none";
+        // Busca o nome dentro do H4 do card
+        const nomeNoCard = card.querySelector('h4').innerText.toLowerCase();
+        
+        if (nomeNoCard.includes(termo)) {
+            card.style.display = "flex";
+        } else {
+            card.style.display = "none";
+        }
     });
 }
-
 function limparBusca() {
     document.getElementById('busca-cliente').value = "";
     filtrarClientes();
 }
+
 
 
 
