@@ -211,3 +211,45 @@ button#btn-reservar:hover { background-color: #219150; }
     box-shadow: 0 15px 30px rgba(243, 156, 18, 0.15), 0 5px 15px rgba(243, 156, 18, 0.1);
 
 }
+/* Container do Histórico */
+#lista-historico {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    opacity: 0.9; /* Deixa um pouco mais suave */
+}
+
+/* Card de Histórico (Versão simplificada do seu card original) */
+.historico-item {
+    background-color: #f8f9fa !important; /* Cinza bem clarinho */
+    border: 1px dashed #ccc !important;   /* Borda tracejada */
+    box-shadow: none !important;          /* Remove a profundidade forte */
+    transform: none !important;           /* Remove o efeito de subir no hover */
+    padding: 15px;
+    border-left: 5px solid #95a5a6 !important; /* Barra lateral cinza */
+}
+
+.historico-item h4 {
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.historico-item p {
+    font-size: 12px;
+    color: #95a5a6;
+    margin: 2px 0;
+}
+
+/* Tag para identificar quando foi finalizado */
+.tag-finalizado {
+    display: inline-block;
+    background: #bdc3c7;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+
