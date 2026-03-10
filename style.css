@@ -100,7 +100,7 @@ button#btn-reservar:hover { background-color: #219150; }
     display: flex;
     gap: 10px;
 }
-
+/*
 #btn-buscar, #btn-limpar {
     padding: 10px 20px;
     border: none;
@@ -108,7 +108,7 @@ button#btn-reservar:hover { background-color: #219150; }
     cursor: pointer;
     font-weight: bold;
 }
-
+*/
 
 /* Cards de Exibição */
 .lista-cards {
@@ -209,4 +209,5 @@ button#btn-reservar:hover { background-color: #219150; }
 .card-aluguel.final-de-semana:hover {
     /* Mantém a elevação, mas ajusta a sombra para a cor do destaque */
     box-shadow: 0 15px 30px rgba(243, 156, 18, 0.15), 0 5px 15px rgba(243, 156, 18, 0.1);
+
 }
