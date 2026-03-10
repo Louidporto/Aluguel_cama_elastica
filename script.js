@@ -108,7 +108,7 @@ function criarCardNaTela(aluguel) {
 
 // 6. REMOVER DA NUVEM
 function removerCard(id) {
-    if(confirm("Deseja realmente liberar este equipamento?")) {
+    if(confirm("Deseja realmente apagar essa reserva?")) {
         database.ref('alugueis/' + id).remove();
     }
 }
@@ -142,6 +142,7 @@ function limparBusca() {
         buscaInput.focus();    // Coloca o cursor de volta no campo (opcional, mas bom pra UX)
     }
 }
+
 
 
 
