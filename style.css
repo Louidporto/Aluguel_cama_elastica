@@ -10,12 +10,22 @@ body { background-color: #f4f7f6; padding: 20px; color: #333; }
 .campo-form { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 8px; }
 input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
 
-/* Botões */
-button#btn-reservar { 
-    width: 100%; padding: 14px; background: linear-gradient(135deg, #f39c12, #e67e22);
-    color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+/* --- BOTÃO DE RESERVAR VERDE --- */
+button#btn-reservar {
+    width: 100%;
+    padding: 14px;
+    background-color: #27ae60; /* Verde firme */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
 }
-button#btn-reservar:hover { background: #d35400; }
+button#btn-reservar:hover {
+    background-color: #219150; /* Verde mais escuro no hover */
+}
 
 .btn-whatsapp {
     display: flex; align-items: center; justify-content: center;
@@ -51,7 +61,7 @@ button#btn-reservar:hover { background: #d35400; }
 .tag-finalizado { background: #95a5a6; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; }
 
 #btn-buscar {
-    background-color: #e67e22; /* Laranja */
+    background-color: #3498db; /* Laranja */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -62,7 +72,7 @@ button#btn-reservar:hover { background: #d35400; }
 }
 
 #btn-buscar:hover {
-    background-color: #d35400; /* Laranja mais escuro */
+    background-color: #3498db; /* Laranja mais escuro */
 }
 
 .busca-wrapper {
@@ -70,6 +80,7 @@ button#btn-reservar:hover { background: #d35400; }
     gap: 10px;
     align-items: center;
 }
+
 
 
 
